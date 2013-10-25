@@ -16,6 +16,30 @@ function b.unittest.add_test_case () {
   fi
 }
 
+## Runs all added test cases
+function b.unittest.run_tests () {
+  local i=0
+  #b.unittest.reset_tests
+  echo
+  while [ $i -lt ${#_BANG_TESTFUNCS[@]} ]; do
+    is_function? b.unittest.setup && b.unittest.setup
+    echo "Running testcase '${_BANG_TESTFUNCS[$i]}' (${_BANG_TESTDESCS[$i]})"
+    echo
+    ${_BANG_TESTFUNCS[$i]}
+    let i++
+    is_function? b.unittest.teardown && b.unittest.teardown
+  done
+  echo "$i tests executed (Assertions: $_BANG_ASSERTIONS_PASSED passed / $_BANG_ASSERTIONS_FAILED failed)"
+}
+
+## Autoadd and run all test functions
+function b.unittest.autorun_tests () {
+  for func in $(b.unittest.find_test_cases); do
+    b.unittest.add_test_case "$func"
+  done
+  b.unittest.run_tests
+}
+
 ## Asserts a function exit code is zero
 ## @param return code - return code of the command
 function b.unittest.assert_success () {
